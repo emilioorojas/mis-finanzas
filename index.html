@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanzas PRO</title>
+    <title>Finanzas Sincronizadas</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
@@ -12,181 +12,145 @@
             --ios-blue: #007AFF;
             --ios-bg: #F2F2F7;
             --ios-card: #FFFFFF;
-            --verde-ingreso: #34C759;
-            --rojo-gasto: #FF3B30;
-            --texto: #000000;
+            --verde: #34C759;
+            --rojo: #FF3B30;
+            --texto: #1C1C1E;
         }
 
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-family: -apple-system, system-ui, sans-serif; 
             background: var(--ios-bg); 
-            margin: 0; 
-            padding: 15px; 
+            margin: 0; padding: 20px; 
             color: var(--texto);
-            -webkit-font-smoothing: antialiased;
         }
 
-        /* Contenedor principal */
-        .container { max-width: 600px; margin: 0 auto; }
+        .container { max-width: 1100px; margin: 0 auto; }
 
-        /* Cabecera estilo iOS */
-        .header { 
-            padding: 20px 5px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-end;
-        }
-        .header h1 { font-size: 28px; margin: 0; font-weight: 700; }
-        .balance-box { text-align: right; }
-        .balance-box small { color: #8E8E93; font-weight: 600; font-size: 12px; }
-        .balance-box h2 { margin: 0; font-size: 24px; color: var(--ios-blue); }
+        /* CABECERA */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .header h1 { font-size: 28px; margin: 0; }
+        .balance-card { text-align: right; background: var(--ios-blue); color: white; padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
+        .balance-card small { opacity: 0.8; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .balance-card h2 { margin: 0; font-size: 28px; }
 
-        /* Tarjeta de Formulario */
-        .card {
-            background: var(--ios-card);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+        /* FORMULARIO ADAPTABLE */
+        .card-form { 
+            background: white; border-radius: 15px; padding: 20px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 25px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; align-items: flex-end;
         }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 11px; font-weight: 700; color: #8E8E93; text-transform: uppercase; margin-left: 5px; }
+        input, select { 
+            height: 44px; border: 1px solid #E5E5EA; border-radius: 10px; 
+            padding: 0 12px; font-size: 16px; background: #F9F9F9; outline: none;
         }
-
-        .full-width { grid-column: span 2; }
-
-        label { display: block; font-size: 13px; color: #8E8E93; margin-bottom: 5px; margin-left: 5px; }
-
-        input, select {
-            width: 100%;
-            height: 45px; /* Tamaño ideal para dedos */
-            background: #F2F2F7;
-            border: none;
-            border-radius: 10px;
-            padding: 0 15px;
-            font-size: 16px; /* Evita zoom automático en iPhone */
-            box-sizing: border-box;
-            outline: none;
+        
+        .btn-add { 
+            height: 44px; background: var(--ios-blue); color: white; border: none; 
+            border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s;
         }
+        .btn-add:active { opacity: 0.7; }
 
-        .btn-add {
-            grid-column: span 2;
-            height: 50px;
-            background: var(--ios-blue);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 600;
-            margin-top: 10px;
-            cursor: pointer;
-            active: opacity 0.7;
-        }
-
-        /* Tabla Responsiva */
-        .table-container {
-            background: var(--ios-card);
-            border-radius: 15px;
-            overflow-x: auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-
-        table { width: 100%; border-collapse: collapse; min-width: 450px; }
-        th { background: #F9F9F9; padding: 12px; text-align: left; font-size: 12px; color: #8E8E93; border-bottom: 1px solid #E5E5EA; }
-        td { padding: 15px 12px; border-bottom: 1px solid #F2F2F7; font-size: 14px; }
-
-        .tag-categoria { background: #E5E5EA; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        /* TABLA */
+        .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #F9F9F9; padding: 15px; text-align: left; font-size: 12px; color: #8E8E93; border-bottom: 1px solid #E5E5EA; }
+        td { padding: 15px; border-bottom: 1px solid #F2F2F7; font-size: 15px; }
+        
         .monto { font-weight: 700; text-align: right; }
-        .ingreso { color: var(--verde-ingreso); }
-        .gasto { color: var(--rojo-gasto); }
+        .ingreso { color: var(--verde); }
+        .gasto { color: var(--rojo); }
 
-        /* Panel Ahorros Flotante */
+        /* PANEL DE AHORROS */
         .panel-ahorros {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid #E5E5EA;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
+            background: white; padding: 20px; border-radius: 15px; margin-top: 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-left: 5px solid var(--ios-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .status-api { font-size: 11px; color: #8E8E93; text-align: center; margin-bottom: 110px; }
-
-        .btn-delete { color: #C7C7CC; border: none; background: none; font-size: 18px; }
+        /* --- AJUSTES ESPECÍFICOS PARA MÓVIL (iPhone 13) --- */
+        @media (max-width: 768px) {
+            body { padding: 10px; padding-bottom: 100px; }
+            .header h1 { font-size: 22px; }
+            .balance-card h2 { font-size: 22px; }
+            
+            .card-form { 
+                grid-template-columns: 1fr 1fr; /* Dos columnas en móvil */
+            }
+            .full-mobile { grid-column: span 2; }
+            
+            /* En móvil, ocultamos la fecha para ganar espacio */
+            .hide-mobile { display: none; }
+            
+            .panel-ahorros {
+                position: fixed; bottom: 0; left: 0; right: 0; margin: 0;
+                border-radius: 0; border-top: 1px solid #E5E5EA; border-left: none;
+                padding: 15px; z-index: 100;
+            }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Finanzas</h1>
-        <div class="balance-box">
-            <small>BALANCE TOTAL</small>
+        <h1>Finanzas Sincronizadas</h1>
+        <div class="balance-card">
+            <small>Balance Global</small>
             <h2 id="balance-total">$0,00</h2>
         </div>
     </div>
 
-    <div class="card">
-        <div class="form-grid">
-            <div class="full-width">
-                <label>MES DE REGISTRO</label>
-                <select id="selector-mes" onchange="renderizarTabla()"></select>
-            </div>
-            <div class="full-width">
-                <label>DESCRIPCIÓN</label>
-                <input type="text" id="desc" placeholder="Ej: Supermercado">
-            </div>
-            <div>
-                <label>MONTO</label>
-                <input type="number" id="monto" placeholder="0.00">
-            </div>
-            <div>
-                <label>DIVISA</label>
-                <select id="divisa">
-                    <option value="UYU">UYU</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                </select>
-            </div>
-            <div>
-                <label>CATEGORÍA</label>
-                <select id="categoria">
-                    <option value="Ingreso">Ingreso</option>
-                    <option value="Comida">Comida</option>
-                    <option value="Transporte">Transporte</option>
-                    <option value="Bobadas">Bobadas</option>
-                    <option value="Mascotas">Mascotas</option>
-                    <option value="Ahorros">Ahorros</option>
-                </select>
-            </div>
-            <div>
-                <label>OPERACIÓN</label>
-                <select id="tipo">
-                    <option value="gasto">Gasto (-)</option>
-                    <option value="ingreso">Ingreso (+)</option>
-                </select>
-            </div>
-            <button class="btn-add" onclick="agregarFila()">Añadir Movimiento</button>
+    <div class="card-form">
+        <div class="field full-mobile">
+            <label>Mes de Registro</label>
+            <select id="selector-mes" onchange="renderizarTabla()"></select>
         </div>
+        <div class="field full-mobile">
+            <label>Descripción</label>
+            <input type="text" id="desc" placeholder="Ej: Supermercado">
+        </div>
+        <div class="field">
+            <label>Monto</label>
+            <input type="number" id="monto" placeholder="0">
+        </div>
+        <div class="field">
+            <label>Divisa</label>
+            <select id="divisa">
+                <option value="UYU">UYU</option><option value="USD">USD</option><option value="EUR">EUR</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Categoría</label>
+            <select id="categoria">
+                <option value="Comida">Comida</option>
+                <option value="Ingreso">Ingreso</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Mascotas">Mascotas</option>
+                <option value="Ahorros">Ahorros</option>
+                <option value="Bobadas">Bobadas</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Tipo</label>
+            <select id="tipo">
+                <option value="gasto">Gasto (-)</option>
+                <option value="ingreso">Ingreso (+)</option>
+            </select>
+        </div>
+        <button class="btn-add full-mobile" onclick="agregarFila()">Añadir</button>
     </div>
 
     <div class="table-container">
         <table>
             <thead>
                 <tr>
+                    <th class="hide-mobile">Fecha</th>
                     <th>Detalle</th>
                     <th>Original</th>
-                    <th style="text-align:right">UYU</th>
+                    <th style="text-align:right">Impacto UYU</th>
                     <th></th>
                 </tr>
             </thead>
@@ -194,21 +158,22 @@
         </table>
     </div>
 
-    <div id="api-info" class="status-api">Actualizando cotizaciones...</div>
-</div>
-
-<div class="panel-ahorros">
-    <div>
-        <small style="color: #8E8E93; font-weight: 600; font-size: 10px;">POZO AHORROS</small>
-        <div id="detalle-ahorros" style="font-size: 12px; font-weight: 500;">...</div>
+    <div class="panel-ahorros">
+        <div>
+            <label>Pozo de Ahorros</label>
+            <div id="detalle-ahorros" style="font-weight: 600; font-size: 14px;">...</div>
+        </div>
+        <div style="text-align: right;">
+            <label>Total Ahorrado</label>
+            <div id="ahorro-total-uyu" style="font-weight: 800; color: var(--ios-blue); font-size: 18px;">...</div>
+        </div>
     </div>
-    <div style="text-align: right;">
-        <div id="ahorro-total-uyu" style="font-weight: 700; color: var(--ios-blue);">...</div>
-    </div>
+    
+    <div id="api-info" style="text-align: center; font-size: 10px; color: #8E8E93; margin-top: 20px;">Cargando tasas...</div>
 </div>
 
 <script>
-    // --- CONFIGURACIÓN FIREBASE (Mantener las tuyas) ---
+    // --- USA TUS MISMAS CREDENCIALES ---
     const firebaseConfig = {
         apiKey: "AIzaSyApbvWi5bPZBMj8zX-FM-ZM1GEVRvJoXTU",
         authDomain: "mis-finanzas-27079.firebaseapp.com",
@@ -235,8 +200,8 @@
             const resp = await fetch(`https://open.er-api.com/v6/latest/UYU`);
             const data = await resp.json();
             tasas = data.rates;
-            document.getElementById('api-info').textContent = `1 USD = $${(1/tasas.USD).toFixed(2)} | 1 EUR = $${(1/tasas.EUR).toFixed(2)}`;
-        } catch (e) { document.getElementById('api-info').textContent = "Modo Offline"; }
+            document.getElementById('api-info').textContent = `Tasas: 1 USD = $${(1/tasas.USD).toFixed(2)} | 1 EUR = $${(1/tasas.EUR).toFixed(2)}`;
+        } catch (e) { }
     }
 
     function actualizarSelectorMeses() {
@@ -289,7 +254,6 @@
         const mesSel = document.getElementById('selector-mes').value;
         const tabla = document.getElementById('cuerpo-tabla');
         tabla.innerHTML = '';
-        
         let globalBal = 0, ahorroUyu = 0, ahorroDet = {USD:0, EUR:0, UYU:0};
 
         Object.keys(baseDeDatos).forEach(mKey => {
@@ -308,20 +272,21 @@
             const mov = movs[id];
             const fila = document.createElement('tr');
             fila.innerHTML = `
+                <td class="hide-mobile" style="color:#8E8E93; font-size:12px">${mov.fecha}</td>
                 <td>
                     <div style="font-weight:600">${mov.desc}</div>
-                    <span class="tag-categoria">${mov.categoria}</span>
+                    <span style="font-size:10px; background:#F2F2F7; padding:2px 6px; border-radius:4px; font-weight:700; color:#8E8E93">${mov.categoria}</span>
                 </td>
-                <td style="font-size:12px; color:#8E8E93">${mov.montoOrig} ${mov.divisa}</td>
+                <td style="font-size:13px">${mov.montoOrig.toLocaleString()} ${mov.divisa}</td>
                 <td class="monto ${mov.tipo}">$${mov.montoEnUyu.toLocaleString('es-UY',{minimumFractionDigits:2})}</td>
-                <td><button class="btn-delete" onclick="borrarFila('${id}')">×</button></td>
+                <td><button onclick="borrarFila('${id}')" style="border:none; background:none; color:#C7C7CC; cursor:pointer; font-size:18px">×</button></td>
             `;
             tabla.appendChild(fila);
         });
 
-        document.getElementById('balance-total').textContent = `$${globalBal.toLocaleString('es-UY',{minimumFractionDigits:0})}`;
-        document.getElementById('detalle-ahorros').innerHTML = `USD ${ahorroDet.USD} · EUR ${ahorroDet.EUR} · UYU ${ahorroDet.UYU}`;
-        document.getElementById('ahorro-total-uyu').textContent = `$${ahorroUyu.toLocaleString('es-UY',{minimumFractionDigits:0})} UYU`;
+        document.getElementById('balance-total').textContent = `$${globalBal.toLocaleString('es-UY',{minimumFractionDigits:2})}`;
+        document.getElementById('detalle-ahorros').innerHTML = `USD ${ahorroDet.USD.toLocaleString()} · EUR ${ahorroDet.EUR.toLocaleString()} · UYU ${ahorroDet.UYU.toLocaleString()}`;
+        document.getElementById('ahorro-total-uyu').textContent = `$${ahorroUyu.toLocaleString('es-UY',{minimumFractionDigits:2})}`;
     }
 
     window.onload = actualizarTasas;
