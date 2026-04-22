@@ -2,117 +2,213 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Finanzas Cloud UYU</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finanzas PRO</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
     <style>
         :root {
-            --celeste-excel: #e1f5fe;
-            --celeste-cabecera: #0277bd;
-            --celeste-borde: #b3e5fc;
-            --verde-ingreso: #2e7d32;
-            --rojo-gasto: #c62828;
-            --texto: #263238;
+            --ios-blue: #007AFF;
+            --ios-bg: #F2F2F7;
+            --ios-card: #FFFFFF;
+            --verde-ingreso: #34C759;
+            --rojo-gasto: #FF3B30;
+            --texto: #000000;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background: #f1f8e9; padding: 20px; color: var(--texto); margin-bottom: 150px; }
-        .container { max-width: 1150px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(2, 119, 189, 0.1); border: 1px solid var(--celeste-borde); }
-        .header { background: var(--celeste-cabecera); color: white; padding: 25px; display: flex; justify-content: space-between; align-items: center; }
-        .toolbar { background: var(--celeste-excel); padding: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--celeste-borde); }
-        .search-bar { background: #fff; padding: 10px 15px; border-bottom: 1px solid var(--celeste-borde); display: flex; align-items: center; gap: 10px; }
-        .search-bar input { flex-grow: 1; border: 1px solid var(--celeste-borde); padding: 8px; border-radius: 20px; padding-left: 15px; outline: none; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { padding: 12px; border: 1px solid var(--celeste-borde); text-align: left; }
-        th { background: #0288d1; color: white; font-size: 0.8rem; text-transform: uppercase; }
-        tr:hover { background-color: #f5fcfd; }
-        .monto-celda { text-align: right; font-weight: bold; }
-        .tag-divisa { background: #cfd8dc; color: #455a64; padding: 2px 4px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
-        .tag-categoria { background: #e3f2fd; color: #0277bd; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; border: 1px solid var(--celeste-borde); }
-        .status-api { font-size: 0.85rem; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); margin-top: 10px; display: inline-block; }
-        input, select, button { border: 1px solid var(--celeste-borde); padding: 8px; border-radius: 6px; outline: none; }
-        .btn-add { background: var(--celeste-cabecera); color: white; border: none; padding: 8px 20px; cursor: pointer; font-weight: bold; }
-        .btn-export { background: #ffffff; color: #0277bd; border: 1px solid #0277bd; padding: 6px 12px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--ios-bg); 
+            margin: 0; 
+            padding: 15px; 
+            color: var(--texto);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Contenedor principal */
+        .container { max-width: 600px; margin: 0 auto; }
+
+        /* Cabecera estilo iOS */
+        .header { 
+            padding: 20px 5px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end;
+        }
+        .header h1 { font-size: 28px; margin: 0; font-weight: 700; }
+        .balance-box { text-align: right; }
+        .balance-box small { color: #8E8E93; font-weight: 600; font-size: 12px; }
+        .balance-box h2 { margin: 0; font-size: 24px; color: var(--ios-blue); }
+
+        /* Tarjeta de Formulario */
+        .card {
+            background: var(--ios-card);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .full-width { grid-column: span 2; }
+
+        label { display: block; font-size: 13px; color: #8E8E93; margin-bottom: 5px; margin-left: 5px; }
+
+        input, select {
+            width: 100%;
+            height: 45px; /* Tamaño ideal para dedos */
+            background: #F2F2F7;
+            border: none;
+            border-radius: 10px;
+            padding: 0 15px;
+            font-size: 16px; /* Evita zoom automático en iPhone */
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .btn-add {
+            grid-column: span 2;
+            height: 50px;
+            background: var(--ios-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
+            active: opacity 0.7;
+        }
+
+        /* Tabla Responsiva */
+        .table-container {
+            background: var(--ios-card);
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 450px; }
+        th { background: #F9F9F9; padding: 12px; text-align: left; font-size: 12px; color: #8E8E93; border-bottom: 1px solid #E5E5EA; }
+        td { padding: 15px 12px; border-bottom: 1px solid #F2F2F7; font-size: 14px; }
+
+        .tag-categoria { background: #E5E5EA; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+        .monto { font-weight: 700; text-align: right; }
         .ingreso { color: var(--verde-ingreso); }
         .gasto { color: var(--rojo-gasto); }
-        .footer-table { background: var(--celeste-excel); font-weight: bold; font-size: 1.1rem; }
-        .panel-ahorros { position: fixed; bottom: 20px; left: 20px; padding: 15px; background: var(--celeste-excel); border-radius: 10px; border: 2px solid var(--celeste-cabecera); box-shadow: 0 4px 15px rgba(0,0,0,0.15); min-width: 220px; z-index: 1000; }
-        .panel-ahorros strong { color: var(--celeste-cabecera); display: block; margin-bottom: 8px; border-bottom: 1px solid var(--celeste-borde); padding-bottom: 5px; font-size: 1rem; }
-        .detalle-ahorros { font-size: 0.85rem; color: var(--texto); line-height: 1.6; }
-        .total-ahorro-uyu { margin-top: 8px; color: var(--celeste-cabecera); font-weight: bold; font-size: 1rem; border-top: 1px dashed var(--celeste-borde); padding-top: 5px; }
+
+        /* Panel Ahorros Flotante */
+        .panel-ahorros {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid #E5E5EA;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .status-api { font-size: 11px; color: #8E8E93; text-align: center; margin-bottom: 110px; }
+
+        .btn-delete { color: #C7C7CC; border: none; background: none; font-size: 18px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div>
-            <h1 style="margin:0; font-size: 1.2rem;">🇺🇾 Mis Finanzas (Sincronizado)</h1>
-            <div id="api-info" class="status-api">Conectando...</div>
-        </div>
-        <div style="text-align:right">
-            <small style="opacity: 0.8;">DISPONIBLE (BALANCE GLOBAL)</small>
-            <h2 id="balance-total" style="margin:0; font-size: 2rem;">$0,00</h2>
+        <h1>Finanzas</h1>
+        <div class="balance-box">
+            <small>BALANCE TOTAL</small>
+            <h2 id="balance-total">$0,00</h2>
         </div>
     </div>
 
-    <div class="toolbar">
-        <strong>Mes:</strong>
-        <select id="selector-mes" onchange="renderizarTabla()"></select>
-        <input type="text" id="desc" placeholder="Descripción">
-        <input type="number" id="monto" placeholder="Monto" style="width: 80px;">
-        <select id="divisa"><option value="UYU">UYU</option><option value="USD">USD</option><option value="EUR">EUR</option></select>
-        <select id="categoria">
-            <option value="Ingreso">Ingreso</option>
-            <option value="Comida">Comida</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Bobadas">Bobadas</option>
-            <option value="Ahorros">Ahorros</option>
-            <option value="Mascotas">Mascotas</option>
-        </select>
-        <select id="tipo"><option value="ingreso">(+)</option><option value="gasto">(-)</option></select>
-        <button class="btn-add" onclick="agregarFila()">Añadir</button>
-        <div style="margin-left: auto;">
-            <button class="btn-export" onclick="exportarExcel()">Excel (CSV)</button>
+    <div class="card">
+        <div class="form-grid">
+            <div class="full-width">
+                <label>MES DE REGISTRO</label>
+                <select id="selector-mes" onchange="renderizarTabla()"></select>
+            </div>
+            <div class="full-width">
+                <label>DESCRIPCIÓN</label>
+                <input type="text" id="desc" placeholder="Ej: Supermercado">
+            </div>
+            <div>
+                <label>MONTO</label>
+                <input type="number" id="monto" placeholder="0.00">
+            </div>
+            <div>
+                <label>DIVISA</label>
+                <select id="divisa">
+                    <option value="UYU">UYU</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                </select>
+            </div>
+            <div>
+                <label>CATEGORÍA</label>
+                <select id="categoria">
+                    <option value="Ingreso">Ingreso</option>
+                    <option value="Comida">Comida</option>
+                    <option value="Transporte">Transporte</option>
+                    <option value="Bobadas">Bobadas</option>
+                    <option value="Mascotas">Mascotas</option>
+                    <option value="Ahorros">Ahorros</option>
+                </select>
+            </div>
+            <div>
+                <label>OPERACIÓN</label>
+                <select id="tipo">
+                    <option value="gasto">Gasto (-)</option>
+                    <option value="ingreso">Ingreso (+)</option>
+                </select>
+            </div>
+            <button class="btn-add" onclick="agregarFila()">Añadir Movimiento</button>
         </div>
     </div>
 
-    <div class="search-bar">
-        <span>🔍</span>
-        <input type="text" id="buscador" placeholder="Filtrar por categoría" oninput="renderizarTabla()">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Detalle</th>
+                    <th>Original</th>
+                    <th style="text-align:right">UYU</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="cuerpo-tabla"></tbody>
+        </table>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Descripción</th>
-                <th>Categoría</th>
-                <th>Original</th>
-                <th class="monto-celda">Impacto UYU</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody id="cuerpo-tabla"></tbody>
-        <tfoot>
-            <tr class="footer-table">
-                <td colspan="4" style="text-align:right">TOTAL VISIBLE:</td>
-                <td id="total-mes" class="monto-celda">$0,00</td>
-                <td></td>
-            </tr>
-        </tfoot>
-    </table>
+    <div id="api-info" class="status-api">Actualizando cotizaciones...</div>
 </div>
 
 <div class="panel-ahorros">
-    <strong>💰 Pozo de Ahorros</strong>
-    <div id="detalle-ahorros" class="detalle-ahorros">USD: 0,00 <br> EUR: 0,00 <br> UYU: 0,00</div>
-    <div id="ahorro-total-uyu" class="total-ahorro-uyu">Total: $0,00 UYU</div>
+    <div>
+        <small style="color: #8E8E93; font-weight: 600; font-size: 10px;">POZO AHORROS</small>
+        <div id="detalle-ahorros" style="font-size: 12px; font-weight: 500;">...</div>
+    </div>
+    <div style="text-align: right;">
+        <div id="ahorro-total-uyu" style="font-weight: 700; color: var(--ios-blue);">...</div>
+    </div>
 </div>
 
 <script>
-    // --- TUS CREDENCIALES DE FIREBASE ---
+    // --- CONFIGURACIÓN FIREBASE (Mantener las tuyas) ---
     const firebaseConfig = {
         apiKey: "AIzaSyApbvWi5bPZBMj8zX-FM-ZM1GEVRvJoXTU",
         authDomain: "mis-finanzas-27079.firebaseapp.com",
@@ -123,14 +219,11 @@
         appId: "1:89175660072:web:db874cdadbedb92f9f471d"
     };
 
-    // Inicialización
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     let baseDeDatos = {};
     let tasas = { USD: 1, EUR: 1, UYU: 1 };
 
-    // ESCUCHA EN TIEMPO REAL: Cada vez que agregues algo, se actualiza en todos lados.
     db.ref('finanzas').on('value', (snapshot) => {
         baseDeDatos = snapshot.val() || {};
         actualizarSelectorMeses();
@@ -143,24 +236,21 @@
             const data = await resp.json();
             tasas = data.rates;
             document.getElementById('api-info').textContent = `1 USD = $${(1/tasas.USD).toFixed(2)} | 1 EUR = $${(1/tasas.EUR).toFixed(2)}`;
-        } catch (e) { document.getElementById('api-info').textContent = "Offline"; }
+        } catch (e) { document.getElementById('api-info').textContent = "Modo Offline"; }
     }
 
     function actualizarSelectorMeses() {
         const selector = document.getElementById('selector-mes');
-        const hoy = new Date();
-        const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
-        
+        const mesAct = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
         let meses = Object.keys(baseDeDatos);
-        if (!meses.includes(mesActual)) meses.push(mesActual);
+        if (!meses.includes(mesAct)) meses.push(mesAct);
         meses.sort().reverse();
-
-        const seleccionado = selector.value || mesActual;
+        const sel = selector.value || mesAct;
         selector.innerHTML = '';
         meses.forEach(m => {
             const opt = document.createElement('option');
             opt.value = m; opt.textContent = m;
-            if (m === seleccionado) opt.selected = true;
+            if (m === sel) opt.selected = true;
             selector.appendChild(opt);
         });
     }
@@ -173,89 +263,65 @@
         let tipo = document.getElementById('tipo').value;
         const mes = document.getElementById('selector-mes').value;
 
-        if (!desc || isNaN(montoOrig)) return alert("Completa los datos");
+        if (!desc || isNaN(montoOrig)) return;
         if (cat === "Ahorros") tipo = "gasto";
 
-        const nuevoMovimiento = {
+        db.ref(`finanzas/${mes}`).push({
             fecha: new Date().toLocaleDateString('es-UY'),
             desc, categoria: cat, montoOrig, divisa,
             montoEnUyu: montoOrig / tasas[divisa],
             tipo,
             timestamp: Date.now()
-        };
-
-        // Guardamos en Firebase en lugar de LocalStorage
-        db.ref(`finanzas/${mes}`).push(nuevoMovimiento);
+        });
 
         document.getElementById('desc').value = '';
         document.getElementById('monto').value = '';
     }
 
     function borrarFila(id) {
-        if(!confirm("¿Eliminar registro?")) return;
-        const mes = document.getElementById('selector-mes').value;
-        db.ref(`finanzas/${mes}/${id}`).remove();
+        if(confirm("¿Eliminar?")) {
+            const mes = document.getElementById('selector-mes').value;
+            db.ref(`finanzas/${mes}/${id}`).remove();
+        }
     }
 
     function renderizarTabla() {
-        const mesActual = document.getElementById('selector-mes').value;
-        const filtro = document.getElementById('buscador').value.toLowerCase();
+        const mesSel = document.getElementById('selector-mes').value;
         const tabla = document.getElementById('cuerpo-tabla');
-        
         tabla.innerHTML = '';
-        let totalVisible = 0, globalBalance = 0, ahorroUyu = 0, ahorroDetalle = {USD:0, EUR:0, UYU:0};
+        
+        let globalBal = 0, ahorroUyu = 0, ahorroDet = {USD:0, EUR:0, UYU:0};
 
-        // Cálculos Globales (Recorre todos los meses)
         Object.keys(baseDeDatos).forEach(mKey => {
-            const movimientos = baseDeDatos[mKey];
-            Object.values(movimientos).forEach(mov => {
-                const impacto = mov.tipo === 'ingreso' ? mov.montoEnUyu : -mov.montoEnUyu;
-                globalBalance += impacto;
+            Object.values(baseDeDatos[mKey]).forEach(mov => {
+                const imp = mov.tipo === 'ingreso' ? mov.montoEnUyu : -mov.montoEnUyu;
+                globalBal += imp;
                 if(mov.categoria === "Ahorros") {
                     ahorroUyu += mov.montoEnUyu;
-                    ahorroDetalle[mov.divisa] += mov.montoOrig;
+                    ahorroDet[mov.divisa] += mov.montoOrig;
                 }
             });
         });
 
-        // Movimientos del mes visible
-        const movsMes = baseDeDatos[mesActual] || {};
-        Object.keys(movsMes).forEach(id => {
-            const mov = movsMes[id];
-            if (mov.categoria.toLowerCase().includes(filtro)) {
-                const impacto = mov.tipo === 'ingreso' ? mov.montoEnUyu : -mov.montoEnUyu;
-                totalVisible += impacto;
-                const fila = document.createElement('tr');
-                fila.innerHTML = `
-                    <td>${mov.fecha}</td>
-                    <td>${mov.desc}</td>
-                    <td><span class="tag-categoria">${mov.categoria}</span></td>
-                    <td>${mov.montoOrig.toLocaleString()} <span class="tag-divisa">${mov.divisa}</span></td>
-                    <td class="monto-celda ${mov.tipo}">${impacto < 0 ? '-' : '+'}$${Math.abs(mov.montoEnUyu).toLocaleString('es-UY',{minimumFractionDigits:2})}</td>
-                    <td style="text-align:center"><button onclick="borrarFila('${id}')" style="border:none; background:none; cursor:pointer; color:#ccc;">×</button></td>
-                `;
-                tabla.appendChild(fila);
-            }
+        const movs = baseDeDatos[mesSel] || {};
+        Object.keys(movs).forEach(id => {
+            const mov = movs[id];
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td>
+                    <div style="font-weight:600">${mov.desc}</div>
+                    <span class="tag-categoria">${mov.categoria}</span>
+                </td>
+                <td style="font-size:12px; color:#8E8E93">${mov.montoOrig} ${mov.divisa}</td>
+                <td class="monto ${mov.tipo}">$${mov.montoEnUyu.toLocaleString('es-UY',{minimumFractionDigits:2})}</td>
+                <td><button class="btn-delete" onclick="borrarFila('${id}')">×</button></td>
+            `;
+            tabla.appendChild(fila);
         });
 
-        document.getElementById('balance-total').textContent = `$${globalBalance.toLocaleString('es-UY',{minimumFractionDigits:2})}`;
-        document.getElementById('total-mes').textContent = `$${totalVisible.toLocaleString('es-UY',{minimumFractionDigits:2})}`;
-        document.getElementById('detalle-ahorros').innerHTML = `USD: ${ahorroDetalle.USD.toLocaleString()} <br> EUR: ${ahorroDetalle.EUR.toLocaleString()} <br> UYU: ${ahorroDetalle.UYU.toLocaleString()}`;
-        document.getElementById('ahorro-total-uyu').textContent = `Total: $${ahorroUyu.toLocaleString('es-UY',{minimumFractionDigits:2})} UYU`;
-    }
-
-    function exportarExcel() {
-        let csv = "Fecha;Descripcion;Categoria;Monto;Divisa;UYU;Tipo\n";
-        Object.values(baseDeDatos).forEach(mes => {
-            Object.values(mes).forEach(m => {
-                csv += `${m.fecha};${m.desc};${m.categoria};${m.montoOrig};${m.divisa};${m.montoEnUyu.toFixed(2)};${m.tipo}\n`;
-            });
-        });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "finanzas_cloud.csv";
-        link.click();
+        document.getElementById('balance-total').textContent = `$${globalBal.toLocaleString('es-UY',{minimumFractionDigits:0})}`;
+        document.getElementById('detalle-ahorros').innerHTML = `USD ${ahorroDet.USD} · EUR ${ahorroDet.EUR} · UYU ${ahorroDet.UYU}`;
+        document.getElementById('ahorro-total-uyu').textContent = `$${ahorroUyu.toLocaleString('es-UY',{minimumFractionDigits:0})} UYU`;
     }
 
     window.onload = actualizarTasas;
