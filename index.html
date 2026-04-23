@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finanzas Sincronizadas</title>
+    <title>Finanzas Sincronizadas PRO</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
@@ -37,21 +37,25 @@
         .card-form { 
             background: white; border-radius: 15px; padding: 20px; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 25px;
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; align-items: flex-end;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; align-items: flex-end;
         }
 
         .field { display: flex; flex-direction: column; gap: 5px; }
         label { font-size: 11px; font-weight: 700; color: #8E8E93; text-transform: uppercase; margin-left: 5px; }
         input, select { 
             height: 44px; border: 1px solid #E5E5EA; border-radius: 10px; 
-            padding: 0 12px; font-size: 16px; background: #F9F9F9; outline: none;
+            padding: 0 12px; font-size: 16px; background: #F9F9F9; outline: none; box-sizing: border-box;
         }
         
         .btn-add { 
             height: 44px; background: var(--ios-blue); color: white; border: none; 
             border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s;
         }
-        .btn-add:active { opacity: 0.7; }
+        .btn-export {
+            height: 44px; background: white; color: var(--ios-blue); border: 1px solid var(--ios-blue);
+            border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .btn-add:active, .btn-export:active { opacity: 0.7; }
 
         /* TABLA */
         .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
@@ -72,7 +76,7 @@
 
         /* --- AJUSTES ESPECÍFICOS PARA MÓVIL (iPhone 13) --- */
         @media (max-width: 768px) {
-            body { padding: 10px; padding-bottom: 100px; }
+            body { padding: 10px; padding-bottom: 110px; }
             .header h1 { font-size: 22px; }
             .balance-card h2 { font-size: 22px; }
             
@@ -80,8 +84,6 @@
                 grid-template-columns: 1fr 1fr; /* Dos columnas en móvil */
             }
             .full-mobile { grid-column: span 2; }
-            
-            /* En móvil, ocultamos la fecha para ganar espacio */
             .hide-mobile { display: none; }
             
             .panel-ahorros {
@@ -96,7 +98,7 @@
 
 <div class="container">
     <div class="header">
-        <h1>Finanzas Sincronizadas</h1>
+        <h1>Finanzas</h1>
         <div class="balance-card">
             <small>Balance Global</small>
             <h2 id="balance-total">$0,00</h2>
@@ -141,6 +143,7 @@
             </select>
         </div>
         <button class="btn-add full-mobile" onclick="agregarFila()">Añadir</button>
+        <button class="btn-export full-mobile" onclick="exportarExcel()">Exportar</button>
     </div>
 
     <div class="table-container">
@@ -160,8 +163,8 @@
 
     <div class="panel-ahorros">
         <div>
-            <label>Pozo de Ahorros</label>
-            <div id="detalle-ahorros" style="font-weight: 600; font-size: 14px;">...</div>
+            <label>Ahorros</label>
+            <div id="detalle-ahorros" style="font-weight: 600; font-size: 13px;">...</div>
         </div>
         <div style="text-align: right;">
             <label>Total Ahorrado</label>
@@ -173,7 +176,7 @@
 </div>
 
 <script>
-    // --- USA TUS MISMAS CREDENCIALES ---
+    // --- CREDENCIALES ---
     const firebaseConfig = {
         apiKey: "AIzaSyApbvWi5bPZBMj8zX-FM-ZM1GEVRvJoXTU",
         authDomain: "mis-finanzas-27079.firebaseapp.com",
@@ -248,6 +251,20 @@
             const mes = document.getElementById('selector-mes').value;
             db.ref(`finanzas/${mes}/${id}`).remove();
         }
+    }
+
+    function exportarExcel() {
+        let csv = "Fecha;Mes;Descripcion;Categoria;Monto_Original;Divisa;Monto_UYU;Tipo\n";
+        Object.keys(baseDeDatos).forEach(mKey => {
+            Object.values(baseDeDatos[mKey]).forEach(mov => {
+                csv += `${mov.fecha};${mKey};${mov.desc};${mov.categoria};${mov.montoOrig};${mov.divisa};${mov.montoEnUyu.toFixed(2)};${mov.tipo}\n`;
+            });
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "mis_finanzas_global.csv";
+        link.click();
     }
 
     function renderizarTabla() {
