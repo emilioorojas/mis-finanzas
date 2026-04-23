@@ -35,7 +35,7 @@
         .balance-card small { opacity: 0.8; font-size: 11px; font-weight: 600; text-transform: uppercase; }
         .balance-card h2 { margin: 0; font-size: 28px; }
 
-        /* FORMULARIO - CENTRADO Y AJUSTADO */
+        /* FORMULARIO ADAPTABLE */
         .card-form { 
             background: white; border-radius: 15px; padding: 20px; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 25px;
@@ -84,18 +84,14 @@
             border-left: 5px solid var(--ios-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        /* --- AJUSTES CENTRADO MÓVIL (iPhone 13) --- */
+        /* --- AJUSTES ESPECÍFICOS PARA MÓVIL (iPhone 13) --- */
         @media (max-width: 768px) {
             body { padding: 10px; padding-bottom: 110px; }
             .header h1 { font-size: 22px; }
             .balance-card h2 { font-size: 22px; }
-            
-            /* FORZAMOS CENTRADO Y UNA SOLA COLUMNA */
-            .card-form { 
-                grid-template-columns: 1fr; 
-                text-align: left;
-            }
             .search-container { flex-direction: column; align-items: stretch; }
+            /* Cambio para centrado en iPhone */
+            .card-form { grid-template-columns: 1fr; } 
             .full-mobile { grid-column: span 1; }
             .hide-mobile { display: none; }
             
@@ -165,6 +161,7 @@
 
     <div class="search-container">
         <input type="text" id="buscador" class="search-input" placeholder="🔍 Filtrar categoría..." oninput="renderizarTabla()">
+        <input type="date" id="filtro-fecha" class="search-input" oninput="renderizarTabla()">
         <div id="sum-visible" class="filtro-sum">$0,00</div>
     </div>
 
@@ -198,7 +195,6 @@
 </div>
 
 <script>
-    // --- CREDENCIALES ---
     const firebaseConfig = {
         apiKey: "AIzaSyApbvWi5bPZBMj8zX-FM-ZM1GEVRvJoXTU",
         authDomain: "mis-finanzas-27079.firebaseapp.com",
@@ -213,8 +209,8 @@
     const db = firebase.database();
     let baseDeDatos = {};
     let tasas = { USD: 1, EUR: 1, UYU: 1 };
-
-    // Set fecha actual al cargar
+    
+    // Set fecha actual
     document.getElementById('fecha-ingreso').valueAsDate = new Date();
 
     db.ref('finanzas').on('value', (snapshot) => {
@@ -255,14 +251,16 @@
         const cat = document.getElementById('categoria').value;
         let tipo = document.getElementById('tipo').value;
         const mes = document.getElementById('selector-mes').value;
-        // Obtenemos la fecha seleccionada
-        const fechaManual = document.getElementById('fecha-ingreso').value;
+        // Obtener fecha del input
+        const fechaInput = document.getElementById('fecha-ingreso').value;
+        const [y, m, d] = fechaInput.split('-');
+        const fechaFormateada = `${d}/${m}/${y}`;
 
         if (!desc || isNaN(montoOrig)) return;
         if (cat === "Ahorros") tipo = "gasto";
 
         db.ref(`finanzas/${mes}`).push({
-            fecha: fechaManual || new Date().toLocaleDateString('es-UY'),
+            fecha: fechaFormateada,
             desc, categoria: cat, montoOrig, divisa,
             montoEnUyu: montoOrig / tasas[divisa],
             tipo,
@@ -297,11 +295,12 @@
     function renderizarTabla() {
         const mesSel = document.getElementById('selector-mes').value;
         const filtro = document.getElementById('buscador').value.toLowerCase();
+        const filtroFecha = document.getElementById('filtro-fecha').value;
         const tabla = document.getElementById('cuerpo-tabla');
         tabla.innerHTML = '';
         
         let globalBal = 0, ahorroUyu = 0, ahorroDet = {USD:0, EUR:0, UYU:0};
-        let totalVisible = 0;
+        let totalVisible = 0; 
 
         Object.keys(baseDeDatos).forEach(mKey => {
             Object.values(baseDeDatos[mKey]).forEach(mov => {
@@ -317,9 +316,18 @@
         const movs = baseDeDatos[mesSel] || {};
         Object.keys(movs).forEach(id => {
             const mov = movs[id];
-            if (mov.categoria.toLowerCase().includes(filtro)) {
+            
+            // Lógica de filtrado
+            let coincideFecha = true;
+            if (filtroFecha) {
+                const [y, m, d] = filtroFecha.split('-');
+                const fechaInputFormateada = `${d}/${m}/${y}`;
+                coincideFecha = mov.fecha === fechaInputFormateada;
+            }
+
+            if (mov.categoria.toLowerCase().includes(filtro) && coincideFecha) {
                 const impacto = mov.tipo === 'ingreso' ? mov.montoEnUyu : -mov.montoEnUyu;
-                totalVisible += impacto;
+                totalVisible += impacto; 
 
                 const fila = document.createElement('tr');
                 fila.innerHTML = `
