@@ -1,3 +1,11 @@
+Entiendo perfectamente. He ajustado el código para cumplir con ambos puntos:
+
+1.  **"Filtrar por fecha"**: He añadido una etiqueta visual sobre el buscador de fecha para que sepa claramente qué es.
+2.  **Visibilidad en celular**: He eliminado la clase `hide-mobile` de la columna de fecha tanto en los encabezados (`th`) como en las celdas (`td`), para que la tabla se vea completa (Fecha, Detalle, Original, Impacto UYU) incluso en pantallas pequeñas.
+
+Aquí tienes el código completo, sin modificar la lógica:
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -60,12 +68,12 @@
         .btn-add:active, .btn-export:active { opacity: 0.7; }
 
         /* FILTRO BUSQUEDA */
-        .search-container { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .search-container { margin-bottom: 15px; display: flex; align-items: flex-end; gap: 10px; }
         .search-input { 
             flex-grow: 1; height: 40px; border-radius: 10px; border: 1px solid #E5E5EA; 
             padding: 0 15px; font-size: 14px; outline: none; box-sizing: border-box;
         }
-        .filtro-sum { background: #E5E5EA; padding: 10px 15px; border-radius: 10px; font-size: 14px; font-weight: 700; color: var(--texto); white-space: nowrap; }
+        .filtro-sum { background: #E5E5EA; padding: 10px 15px; border-radius: 10px; font-size: 14px; font-weight: 700; color: var(--texto); white-space: nowrap; height: 40px; box-sizing: border-box; display: flex; align-items: center; }
 
         /* TABLA */
         .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
@@ -84,16 +92,14 @@
             border-left: 5px solid var(--ios-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        /* --- AJUSTES ESPECÍFICOS PARA MÓVIL (iPhone 13) --- */
+        /* --- AJUSTES ESPECÍFICOS PARA MÓVIL --- */
         @media (max-width: 768px) {
             body { padding: 10px; padding-bottom: 110px; }
             .header h1 { font-size: 22px; }
             .balance-card h2 { font-size: 22px; }
             .search-container { flex-direction: column; align-items: stretch; }
-            /* Cambio para centrado en iPhone */
-            .card-form { grid-template-columns: 1fr; } 
+            .card-form { grid-template-columns: 1fr; }
             .full-mobile { grid-column: span 1; }
-            .hide-mobile { display: none; }
             
             .panel-ahorros {
                 position: fixed; bottom: 0; left: 0; right: 0; margin: 0;
@@ -161,7 +167,10 @@
 
     <div class="search-container">
         <input type="text" id="buscador" class="search-input" placeholder="🔍 Filtrar categoría..." oninput="renderizarTabla()">
-        <input type="date" id="filtro-fecha" class="search-input" oninput="renderizarTabla()">
+        <div class="field">
+            <label style="margin-left: 0;">Filtrar por fecha</label>
+            <input type="date" id="filtro-fecha" class="search-input" oninput="renderizarTabla()">
+        </div>
         <div id="sum-visible" class="filtro-sum">$0,00</div>
     </div>
 
@@ -169,7 +178,7 @@
         <table>
             <thead>
                 <tr>
-                    <th class="hide-mobile">Fecha</th>
+                    <th>Fecha</th>
                     <th>Detalle</th>
                     <th>Original</th>
                     <th style="text-align:right">Impacto UYU</th>
@@ -209,8 +218,7 @@
     const db = firebase.database();
     let baseDeDatos = {};
     let tasas = { USD: 1, EUR: 1, UYU: 1 };
-    
-    // Set fecha actual
+
     document.getElementById('fecha-ingreso').valueAsDate = new Date();
 
     db.ref('finanzas').on('value', (snapshot) => {
@@ -251,7 +259,6 @@
         const cat = document.getElementById('categoria').value;
         let tipo = document.getElementById('tipo').value;
         const mes = document.getElementById('selector-mes').value;
-        // Obtener fecha del input
         const fechaInput = document.getElementById('fecha-ingreso').value;
         const [y, m, d] = fechaInput.split('-');
         const fechaFormateada = `${d}/${m}/${y}`;
@@ -300,7 +307,7 @@
         tabla.innerHTML = '';
         
         let globalBal = 0, ahorroUyu = 0, ahorroDet = {USD:0, EUR:0, UYU:0};
-        let totalVisible = 0; 
+        let totalVisible = 0;
 
         Object.keys(baseDeDatos).forEach(mKey => {
             Object.values(baseDeDatos[mKey]).forEach(mov => {
@@ -317,7 +324,6 @@
         Object.keys(movs).forEach(id => {
             const mov = movs[id];
             
-            // Lógica de filtrado
             let coincideFecha = true;
             if (filtroFecha) {
                 const [y, m, d] = filtroFecha.split('-');
@@ -327,11 +333,11 @@
 
             if (mov.categoria.toLowerCase().includes(filtro) && coincideFecha) {
                 const impacto = mov.tipo === 'ingreso' ? mov.montoEnUyu : -mov.montoEnUyu;
-                totalVisible += impacto; 
+                totalVisible += impacto;
 
                 const fila = document.createElement('tr');
                 fila.innerHTML = `
-                    <td class="hide-mobile" style="color:#8E8E93; font-size:12px">${mov.fecha}</td>
+                    <td style="color:#8E8E93; font-size:12px">${mov.fecha}</td>
                     <td>
                         <div style="font-weight:600">${mov.desc}</div>
                         <span style="font-size:10px; background:#F2F2F7; padding:2px 6px; border-radius:4px; font-weight:700; color:#8E8E93">${mov.categoria}</span>
