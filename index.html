@@ -58,11 +58,12 @@
         .btn-add:active, .btn-export:active { opacity: 0.7; }
 
         /* FILTRO BUSQUEDA */
-        .search-container { margin-bottom: 15px; }
+        .search-container { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         .search-input { 
-            width: 100%; height: 40px; border-radius: 10px; border: 1px solid #E5E5EA; 
+            flex-grow: 1; height: 40px; border-radius: 10px; border: 1px solid #E5E5EA; 
             padding: 0 15px; font-size: 14px; outline: none; box-sizing: border-box;
         }
+        .filtro-sum { background: #E5E5EA; padding: 10px 15px; border-radius: 10px; font-size: 14px; font-weight: 700; color: var(--texto); white-space: nowrap; }
 
         /* TABLA */
         .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
@@ -86,10 +87,8 @@
             body { padding: 10px; padding-bottom: 110px; }
             .header h1 { font-size: 22px; }
             .balance-card h2 { font-size: 22px; }
-            
-            .card-form { 
-                grid-template-columns: 1fr 1fr; 
-            }
+            .search-container { flex-direction: column; align-items: stretch; }
+            .card-form { grid-template-columns: 1fr 1fr; }
             .full-mobile { grid-column: span 2; }
             .hide-mobile { display: none; }
             
@@ -154,7 +153,8 @@
     </div>
 
     <div class="search-container">
-        <input type="text" id="buscador" class="search-input" placeholder="🔍 Filtrar por categoría (ej: Comida)..." oninput="renderizarTabla()">
+        <input type="text" id="buscador" class="search-input" placeholder="🔍 Filtrar categoría..." oninput="renderizarTabla()">
+        <div id="sum-visible" class="filtro-sum">Visible: $0,00</div>
     </div>
 
     <div class="table-container">
@@ -283,7 +283,9 @@
         const filtro = document.getElementById('buscador').value.toLowerCase();
         const tabla = document.getElementById('cuerpo-tabla');
         tabla.innerHTML = '';
+        
         let globalBal = 0, ahorroUyu = 0, ahorroDet = {USD:0, EUR:0, UYU:0};
+        let totalVisible = 0; // NUEVA VARIABLE PARA LA SUMA DEL FILTRO
 
         Object.keys(baseDeDatos).forEach(mKey => {
             Object.values(baseDeDatos[mKey]).forEach(mov => {
@@ -299,8 +301,10 @@
         const movs = baseDeDatos[mesSel] || {};
         Object.keys(movs).forEach(id => {
             const mov = movs[id];
-            // LÓGICA DE FILTRADO POR CATEGORÍA
             if (mov.categoria.toLowerCase().includes(filtro)) {
+                const impacto = mov.tipo === 'ingreso' ? mov.montoEnUyu : -mov.montoEnUyu;
+                totalVisible += impacto; // SUMAMOS SOLO LO QUE SE VE
+
                 const fila = document.createElement('tr');
                 fila.innerHTML = `
                     <td class="hide-mobile" style="color:#8E8E93; font-size:12px">${mov.fecha}</td>
@@ -317,6 +321,7 @@
         });
 
         document.getElementById('balance-total').textContent = `$${globalBal.toLocaleString('es-UY',{minimumFractionDigits:2})}`;
+        document.getElementById('sum-visible').textContent = `Visible: $${totalVisible.toLocaleString('es-UY',{minimumFractionDigits:2})}`;
         document.getElementById('detalle-ahorros').innerHTML = `USD ${ahorroDet.USD.toLocaleString()} · EUR ${ahorroDet.EUR.toLocaleString()} · UYU ${ahorroDet.UYU.toLocaleString()}`;
         document.getElementById('ahorro-total-uyu').textContent = `$${ahorroUyu.toLocaleString('es-UY',{minimumFractionDigits:2})}`;
     }
