@@ -174,8 +174,7 @@
                     <th>Detalle</th>
                     <th>Original</th>
                     <th style="text-align:right">Impacto UYU</th>
-                    <th></th>
-                </tr>
+                    <th style="width: 30px;"></th> </tr>
             </thead>
             <tbody id="cuerpo-tabla"></tbody>
         </table>
@@ -339,7 +338,7 @@
                         <span style="font-size:10px; background:#F2F2F7; padding:2px 6px; border-radius:4px; font-weight:700; color:#8E8E93; margin-left:4px;">${mov.divisa}</span>
                     </td>
                     <td class="monto ${mov.tipo}">$${mov.montoEnUyu.toLocaleString('es-UY',{minimumFractionDigits:2})}</td>
-                    <td><button onclick="borrarFila('${id}')" style="border:none; background:none; color:#C7C7CC; cursor:pointer; font-size:18px">×</button></td>
+                    <td style="text-align:center;"><button onclick="borrarFila('${id}')" style="border:none; background:none; color:#C7C7CC; cursor:pointer; font-size:18px">×</button></td>
                 `;
                 tabla.appendChild(fila);
             }
